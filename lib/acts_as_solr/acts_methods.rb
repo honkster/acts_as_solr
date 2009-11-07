@@ -286,18 +286,12 @@ module ActsAsSolr #:nodoc:
       configuration[:solr_fields][field_name] = options
       
       define_method("#{field_name}_for_solr".to_sym) do
-        begin
-          value = self[field_name] || self.instance_variable_get("@#{field_name.to_s}".to_sym) || self.send(field_name.to_sym)
-          case options[:type] 
-            # format dates properly; return nil for nil dates 
-            when :date
-              value ? (value.respond_to?(:utc) ? value.utc : value).strftime("%Y-%m-%dT%H:%M:%SZ") : nil 
-            else value
-          end
-        rescue
-          puts $!
-          logger.debug "There was a problem getting the value for the field '#{field_name}': #{$!}"
-          value = ''
+        value = self[field_name] || self.instance_variable_get("@#{field_name.to_s}".to_sym) || self.send(field_name.to_sym)
+        case options[:type]
+          # format dates properly; return nil for nil dates
+          when :date
+            value ? (value.respond_to?(:utc) ? value.utc : value).strftime("%Y-%m-%dT%H:%M:%SZ") : nil
+          else value
         end
       end
     end
